@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="app-version" content="1.4"><title>AHA ISP — Website Management v1.4</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+:root{color-scheme:light}body{font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;background:#f1f5f9;color:#172033}
+.card{background:white;border:1px solid #e2e8f0;border-radius:18px;box-shadow:0 5px 18px #0f172a0a}
+.btn{border-radius:12px;padding:10px 14px;font-size:13px;font-weight:750;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.field{width:100%;border:1px solid #cbd5e1;border-radius:11px;padding:11px 12px;background:#fff;font-size:13px;outline:none}
+.field:focus{border-color:#14b8a6;box-shadow:0 0 0 3px #14b8a622}
+.category{border:1px solid #dbe4ee;border-radius:15px;padding:13px;background:#fff;text-align:left;transition:.15s}
+.category.active,.category:hover{border-color:#14b8a6;box-shadow:0 0 0 2px #14b8a622}
+.site{border:1px solid #dbe4ee;border-radius:16px;background:white;padding:15px;display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;min-width:0}
+.site:hover{border-color:#14b8a6;box-shadow:0 8px 24px #0f766e14}
+.site-icon{width:54px;height:54px;border-radius:15px;background:#ccfbf1;color:#0f766e;display:grid;place-items:center;font-size:24px}
+.muted{color:#64748b}
+
+/* Responsive application shell, sidebar and eight website view modes */
+.app-sidebar{position:fixed;z-index:40;inset:0 auto 0 0;width:248px;background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;padding:18px 14px;transition:transform .22s ease}
+.sidebar-brand{display:flex;align-items:center;gap:11px;padding:5px 7px 22px;border-bottom:1px solid #e2e8f0}
+.sidebar-brand b{display:block;font-size:17px}.sidebar-brand small{display:block;color:#64748b;font-size:11px;margin-top:2px}
+.sidebar-nav{display:grid;gap:7px;margin-top:22px}.sidebar-nav a{display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:12px;color:#475569;font-size:14px;font-weight:700;text-decoration:none}
+.sidebar-nav a:hover,.sidebar-nav a:focus{background:#e6fffb;color:#0f766e}.sidebar-nav i{width:20px;text-align:center;color:#0d9488}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid #e2e8f0}
+.app-header,.app-main{margin-left:248px!important}.mobile-menu{display:none!important}.sidebar-scrim{display:none}
+.view-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #dbeafe;background:#f8fbff;border-radius:13px;padding:9px 12px}
+.view-toolbar label{font-size:12px;font-weight:800;color:#475569;display:flex;gap:8px;align-items:center}
+.view-select{max-width:230px;padding:8px 10px}
+.website-grid{display:grid;gap:11px}
+.website-grid.view-extra-large-icons{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.website-grid.view-large-icons{grid-template-columns:repeat(auto-fill,minmax(155px,1fr))}
+.website-grid.view-medium-icons{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.website-grid.view-small-icons{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}
+.website-grid.view-list,.website-grid.view-details,.website-grid.view-tiles,.website-grid.view-content{display:flex;flex-direction:column;gap:6px}
+.website-grid.view-extra-large-icons .site,.website-grid.view-large-icons .site,.website-grid.view-medium-icons .site,.website-grid.view-small-icons .site{min-height:135px}
+.website-grid.view-extra-large-icons .site-icon{width:66px;height:66px;font-size:28px}
+.website-grid.view-large-icons .site-icon{width:54px;height:54px;font-size:23px}
+.website-grid.view-medium-icons .site-icon{width:43px;height:43px;font-size:18px}
+.website-grid.view-small-icons .site{min-height:88px;padding:8px;gap:5px}.website-grid.view-small-icons .site-icon{width:30px;height:30px;font-size:13px}.website-grid.view-small-icons .site .muted{display:none}
+.website-grid.view-list .site,.website-grid.view-details .site,.website-grid.view-tiles .site,.website-grid.view-content .site{width:100%;min-height:0;flex-direction:row;justify-content:flex-start;align-items:center;text-align:left;padding:9px 12px;gap:13px}
+.website-grid.view-list .site-icon,.website-grid.view-details .site-icon{width:32px;height:32px;font-size:14px;flex:none}
+.website-grid.view-list .site>div:nth-child(2),.website-grid.view-details .site>div:nth-child(2),.website-grid.view-tiles .site>div:nth-child(2),.website-grid.view-content .site>div:nth-child(2){flex:1;text-align:left;min-width:0}
+.website-grid.view-list .site>div:nth-child(2)>span,.website-grid.view-list .site>div:nth-child(2)>div:last-child{display:none}
+.website-grid.view-details .site>div:nth-child(2)>div:last-child{display:block}
+.website-grid.view-tiles .site-icon{width:42px;height:42px;flex:none}
+.website-grid.view-content .site-icon{width:50px;height:50px;flex:none}
+.website-grid.view-content .site>div:nth-child(2)>div:last-child{white-space:normal;overflow-wrap:anywhere}
+.website-grid .site>div:last-child{flex:none}
+body.dark{background:#0b1220;color:#e2e8f0;color-scheme:dark}
+body.dark .app-sidebar,body.dark .app-header,body.dark .card,body.dark .site{background:#111c2e;border-color:#29384d;color:#e2e8f0}
+body.dark .sidebar-brand,body.dark .sidebar-bottom{border-color:#29384d}
+body.dark .sidebar-nav a{color:#cbd5e1}body.dark .sidebar-nav a:hover{background:#123b3a;color:#5eead4}
+body.dark .field{background:#0b1525;border-color:#3a4b62;color:#e2e8f0}
+body.dark .category{background:#111c2e;border-color:#29384d;color:#e2e8f0}
+body.dark .view-toolbar{background:#142238;border-color:#29384d}
+body.dark .view-toolbar label{color:#cbd5e1}
+body.dark .muted{color:#9aabc1}
+body.dark .site-icon{background:#123b3a;color:#5eead4}
+body.dark .bg-slate-100{background:#243247!important}body.dark .bg-slate-200{background:#334155!important}
+body.dark .bg-sky-50{background:#132b42!important}body.dark .bg-teal-50{background:#123b3a!important}body.dark .bg-violet-50{background:#2b2145!important}
+body.dark .border-sky-100,body.dark .border-teal-100,body.dark .border-violet-100{border-color:#34465f!important}
+@media(max-width:767px){
+ .app-sidebar{transform:translateX(-105%);width:min(290px,84vw);box-shadow:12px 0 35px #0f172a20}
+ .app-sidebar.open{transform:translateX(0)}
+ .sidebar-scrim.show{display:block;position:fixed;inset:0;background:#0f172a77;z-index:35}
+ .app-header,.app-main{margin-left:0!important}.mobile-menu{display:inline-flex!important}
+ .view-toolbar{align-items:stretch;flex-direction:column}.view-select{max-width:none;width:100%}
+ .website-grid.view-extra-large-icons,.website-grid.view-large-icons{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:390px){.website-grid.view-extra-large-icons,.website-grid.view-large-icons{grid-template-columns:1fr}}
+.top-back-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;min-width:34px;border:1px solid #dbe4ee;border-radius:10px;background:#f8fafc;color:#475569;font-size:13px}
+.top-back-btn:active{transform:scale(.96)}
+body.dark .top-back-btn{background:#111c2e;border-color:#29384d;color:#e2e8f0}
+
+
+/* Separate Mobile Portrait / Desktop Landscape controls */
+.sidebar-mode-controls{margin:16px 0 8px;padding:11px 9px;border:1px solid #dbeafe;border-radius:13px;background:#f8fbff;display:grid;gap:7px}
+.sidebar-mode-title{font-size:11px;font-weight:900;color:#64748b;padding:0 3px 3px}
+.mode-choice{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:7px;text-align:left;padding:10px 9px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:#475569;font-size:12px;font-weight:800}
+.mode-choice small,.screen-mode-btn small{font-size:10px;font-weight:700;color:#64748b}
+.mode-choice.active,.screen-mode-btn.active{border-color:#14b8a6;background:#e6fffb;color:#0f766e}
+.screen-mode-btn{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:11px;background:#fff;color:#475569;font-size:11px;font-weight:850;white-space:nowrap}
+.screen-mode-btn small{padding-left:2px}
+body.desktop-view-mode{min-width:1024px}
+body.desktop-view-mode .app-main{max-width:none!important;width:calc(100% - 248px);padding-left:24px;padding-right:24px}
+body.desktop-view-mode .website-grid.view-extra-large-icons{grid-template-columns:repeat(4,minmax(0,1fr))}
+body.desktop-view-mode .website-grid.view-large-icons{grid-template-columns:repeat(5,minmax(0,1fr))}
+body.desktop-view-mode .website-grid.view-medium-icons{grid-template-columns:repeat(6,minmax(0,1fr))}
+body.desktop-view-mode .website-grid.view-small-icons{grid-template-columns:repeat(8,minmax(0,1fr))}
+body.desktop-view-mode .sidebar-scrim{display:none!important}
+body.dark .sidebar-mode-controls{background:#142238;border-color:#29384d}
+body.dark .mode-choice,body.dark .screen-mode-btn{background:#111c2e;border-color:#29384d;color:#cbd5e1}
+body.dark .mode-choice.active,body.dark .screen-mode-btn.active{background:#123b3a;border-color:#14b8a6;color:#5eead4}
+@media(max-width:767px){
+ .app-header>div{flex-wrap:wrap}
+ .screen-mode-btn{padding:7px 8px;gap:4px}
+ .screen-mode-btn span{font-size:10px}
+}
+
+
+/* Sidebar single-panel navigation */
+.app-main>.module-panel{display:none!important}
+.app-main>.module-panel.active-panel{display:block!important}
+.sidebar-nav a.active{background:#e6fffb;color:#0f766e}
+.sidebar-nav a.active i{color:#0f766e}
+body.dark .sidebar-nav a.active{background:#123b3a;color:#5eead4}
+body.dark .sidebar-nav a.active i{color:#5eead4}
+
+</style></head>
+<body>
+<aside id="appSidebar" class="app-sidebar" aria-label="প্রধান মেনু">
+ <div class="sidebar-brand"><div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 grid place-items-center"><i class="fa-solid fa-bolt"></i></div><div><b>AHA ISP</b><small>Website Manager</small></div></div>
+ <div class="sidebar-mode-controls">
+  <div class="sidebar-mode-title">স্ক্রিন মোড</div>
+  <button id="sidebarMobileMode" class="mode-choice" type="button" onclick="setScreenMode('mobile')"><i class="fa-solid fa-mobile-screen-button"></i><span>Mobile Mode</span><small>Portrait</small></button>
+  <button id="sidebarDesktopMode" class="mode-choice" type="button" onclick="setScreenMode('desktop')"><i class="fa-solid fa-desktop"></i><span>Desktop Mode</span><small>Landscape</small></button>
+ </div>
+ <nav class="sidebar-nav">
+  <a href="#dashboard" onclick="showSection('dashboard');return false"><i class="fa-solid fa-chart-pie"></i> ড্যাশবোর্ড</a>
+  <a href="#categorySection" onclick="showSection('categorySection');return false"><i class="fa-solid fa-folder-tree"></i> ক্যাটাগরি</a>
+  <a href="#websiteSection" onclick="showSection('websiteSection');return false"><i class="fa-solid fa-globe"></i> ওয়েবসাইট ম্যানেজমেন্ট</a>
+  <a href="#backupSection" onclick="showSection('backupSection');return false"><i class="fa-solid fa-database"></i> ব্যাকআপ ও রিস্টোর</a>
+ </nav>
+ <div class="sidebar-bottom"><span class="text-xs muted">Standalone v1.1</span></div>
+</aside>
+<div id="sidebarScrim" class="sidebar-scrim" onclick="closeSidebar()"></div>
+<header class="bg-white border-b sticky top-0 z-20 app-header">
+ <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+  <div class="flex items-center gap-2 sm:gap-3">
+   <button id="topBackButton" class="top-back-btn" type="button" onclick="appGoBack()" aria-label="আগের পেজে ফিরুন" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+   <button class="mobile-menu btn bg-slate-100 text-slate-700" onclick="toggleSidebar()" aria-label="মেনু খুলুন"><i class="fa-solid fa-bars"></i></button><div class="w-11 h-11 rounded-2xl bg-teal-100 text-teal-700 grid place-items-center text-xl"><i class="fa-solid fa-globe"></i></div><div><h1 class="font-black text-lg sm:text-xl">AHA ISP — Website Management</h1><p class="text-xs muted">ওয়েবসাইট, ক্যাটাগরি ও ব্যাকআপ ম্যানেজমেন্ট</p></div></div>
+  <div class="flex items-center gap-2 flex-wrap justify-end">
+   <button id="topMobileMode" class="screen-mode-btn" type="button" onclick="setScreenMode('mobile')" title="Mobile Mode — Portrait"><i class="fa-solid fa-mobile-screen-button"></i><span>Mobile</span><small>Portrait</small></button>
+   <button id="topDesktopMode" class="screen-mode-btn" type="button" onclick="setScreenMode('desktop')" title="Desktop Mode — Landscape"><i class="fa-solid fa-desktop"></i><span>Desktop</span><small>Landscape</small></button>
+   <button id="themeToggle" class="btn bg-slate-100 text-slate-700" onclick="toggleTheme()" title="Dark / Light"><i id="themeIcon" class="fa-solid fa-moon"></i><span class="hidden sm:inline">ডার্ক / লাইট</span></button>
+   <span class="text-xs font-bold px-3 py-2 rounded-full bg-teal-50 text-teal-700">v1.1</span>
+  </div>
+ </div>
+</header>
+<main class="max-w-7xl mx-auto p-4 sm:p-6 space-y-5 app-main">
+ <section id="dashboard" class="grid grid-cols-2 lg:grid-cols-4 gap-3 module-panel">
+  <div class="card p-4"><p class="text-xs muted">মোট Website</p><strong id="total" class="block text-3xl text-teal-600 mt-1">0</strong></div>
+  <div class="card p-4"><p class="text-xs muted">ক্যাটাগরি</p><strong id="catCount" class="block text-3xl text-sky-600 mt-1">0</strong></div>
+  <div class="card p-4"><p class="text-xs muted">এই মাসে যোগ</p><strong id="newCount" class="block text-3xl text-violet-600 mt-1">0</strong></div>
+  <div class="card p-4"><p class="text-xs muted">দেখানো ক্যাটাগরি</p><strong id="currentCat" class="block text-sm text-amber-600 mt-3">সবগুলো</strong></div>
+ 
+ <section id="dashboardCategories" class="card p-4 sm:p-5 space-y-4">
+  <div><h2 class="font-extrabold"><i class="fa-solid fa-folder-tree text-teal-600 mr-2"></i>ওয়েবসাইট ক্যাটাগরি</h2><p class="text-xs muted mt-1">যে ক্যাটাগরিতে ক্লিক করবেন, সেই ক্যাটাগরির ওয়েবসাইটগুলো দেখাবে</p></div>
+  <div id="dashboardCategoryCards" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+ </section></section>
+ <section id="categorySection" class="card p-4 sm:p-5 space-y-4 module-panel">
+  <div class="flex flex-wrap justify-between items-center gap-2"><div><h2 class="font-extrabold"><i class="fa-solid fa-layer-group text-teal-600 mr-2"></i>ক্যাটাগরি</h2><p class="text-xs muted mt-1">ক্যাটাগরি বক্সে ক্লিক করে ওয়েবসাইট দেখুন</p></div><button class="btn bg-sky-100 text-sky-800" onclick="showCategoryForm()"><i class="fa-solid fa-plus"></i> ক্যাটাগরি যোগ</button></div>
+  <div id="categories" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+  <form id="catForm" class="hidden bg-sky-50 border border-sky-100 rounded-xl p-3 flex flex-col sm:flex-row gap-2" onsubmit="saveCategory(event)"><input id="catEditId" type="hidden"><input id="catName" class="field flex-1" required maxlength="50" placeholder="ক্যাটাগরির নাম"><button class="btn bg-sky-600 text-white">সেভ</button><button type="button" class="btn bg-slate-200" onclick="resetCategoryForm()">বাতিল</button></form>
+ </section>
+ <section id="websiteSection" class="card p-4 sm:p-5 space-y-4 module-panel">
+  <div class="flex flex-wrap items-center justify-between gap-2"><div><h2 class="font-extrabold" id="listHeading"><i class="fa-solid fa-folder-open text-teal-600 mr-2"></i>সব Website</h2><p class="text-xs muted mt-1">ফোল্ডার/কার্ডে ক্লিক করলে নতুন ট্যাবে Website খুলবে</p></div><button class="btn bg-slate-100 text-slate-700" onclick="selectCategory('all')"><i class="fa-solid fa-arrow-left"></i> সব ক্যাটাগরি</button></div>
+  <div class="flex flex-col sm:flex-row gap-2"><input id="search" class="field flex-1" placeholder="Website নাম বা URL খুঁজুন..." oninput="renderSites()"><select id="filter" class="field sm:max-w-xs" onchange="selectCategory(this.value)"><option value="all">সব ক্যাটাগরি</option></select></div>
+  <form id="siteForm" class="bg-teal-50 border border-teal-100 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2" onsubmit="saveSite(event)">
+   <input id="siteId" type="hidden"><input id="siteName" class="field" required maxlength="80" placeholder="Website name">
+   <select id="siteCategory" class="field"></select>
+   <select id="siteIcon" class="field"><option value="fa-folder-open">📁 ফোল্ডার</option><option value="fa-globe">🌐 গ্লোব</option><option value="fa-film">🎬 মুভি</option><option value="fa-play">▶️ প্লে</option><option value="fa-tv">📺 টিভি</option><option value="fa-video">🎥 ভিডিও</option><option value="fa-link">🔗 লিংক</option><option value="fa-bookmark">🔖 বুকমার্ক</option><option value="fa-star">⭐ স্টার</option><option value="fa-house">🏠 হোম</option><option value="fa-briefcase">💼 অফিস</option><option value="fa-screwdriver-wrench">🛠️ টুলস</option><option value="fa-graduation-cap">🎓 শিক্ষা</option><option value="fa-building-columns">🏛️ সরকারি</option><option value="fa-cart-shopping">🛒 শপিং</option><option value="fa-music">🎵 মিউজিক</option></select>
+   <input id="siteUrl" class="field font-mono" type="url" required placeholder="https://example.com">
+   <div class="flex gap-2"><button id="saveSiteBtn" class="btn bg-teal-600 text-white flex-1"><i class="fa-solid fa-plus"></i> এড করুন</button><button type="button" class="btn bg-slate-200" onclick="resetSiteForm()">রিসেট</button></div>
+  </form>
+  <div class="view-toolbar">
+   <label for="websiteViewMode"><i class="fa-solid fa-eye"></i> View Mode</label>
+   <select id="websiteViewMode" class="field view-select" onchange="setWebsiteView(this.value)">
+    <option value="extra-large-icons">Extra large icons</option><option value="large-icons">Large icons</option><option value="medium-icons">Medium icons</option><option value="small-icons">Small icons</option><option value="list">List</option><option value="details">Details</option><option value="tiles">Tiles</option><option value="content">Content</option>
+   </select>
+  </div>
+  <div id="sites" class="website-grid view-extra-large-icons"></div>
+ </section>
+ <section id="backupSection" class="card p-4 sm:p-5 space-y-4 module-panel">
+  <div><h2 class="font-extrabold"><i class="fa-solid fa-database text-emerald-600 mr-2"></i>ওয়েবসাইট ব্যাকআপ ও রিস্টোর</h2><p class="text-xs muted mt-1">Website তালিকা ও Category JSON ফাইলে সংরক্ষণ/ফিরিয়ে আনুন</p></div>
+  <div class="grid sm:grid-cols-2 gap-3">
+   <div class="rounded-xl bg-sky-50 border border-sky-100 p-4"><h3 class="font-bold mb-2">ব্যাকআপ</h3><p class="text-xs muted mb-3">সব Website ও Category একসাথে ডাউনলোড করুন। SHA-256 checksum-ও যুক্ত হবে।</p><button class="btn bg-sky-600 text-white w-full" onclick="downloadBackup()"><i class="fa-solid fa-download"></i> ব্যাকআপ ডাউনলোড</button></div>
+   <div class="rounded-xl bg-violet-50 border border-violet-100 p-4"><h3 class="font-bold mb-2">রিস্টোর</h3><p class="text-xs muted mb-3">আগে তৈরি করা AHA ISP Website JSON Backup নির্বাচন করুন। বর্তমান ডাটা আগে snapshot হবে।</p><input id="restoreFile" type="file" accept=".json,application/json" class="field mb-2"><button class="btn bg-violet-600 text-white w-full" onclick="restoreBackup()"><i class="fa-solid fa-rotate-left"></i> ব্যাকআপ রিস্টোর</button></div>
+  </div>
+  <div id="backupStatus" class="text-xs muted" aria-live="polite">Backup format: AHA-ISP-WEBSITE-BACKUP v1 • SHA-256</div>
+ </section>
+ <footer class="text-center text-xs muted py-3">AHA ISP Website Management • ডাটা এই ব্রাউজারের Local Storage-এ রাখা হয়</footer>
+</main>
+<script>
+const WEBSITE_KEY='speedybill_websites', CATEGORY_KEY='speedybill_website_categories';
+const DEFAULT_CATEGORIES=[
+{id:'gov',name:'সরকারি সেবা',icon:'fa-building-columns',tone:'sky'},{id:'nid',name:'NID / ভোটার',icon:'fa-id-card',tone:'indigo'},{id:'passport',name:'পাসপোর্ট',icon:'fa-passport',tone:'violet'},{id:'brta',name:'BRTA / পরিবহন',icon:'fa-car',tone:'amber'},{id:'education',name:'শিক্ষা / বোর্ড',icon:'fa-graduation-cap',tone:'emerald'},{id:'banking',name:'ব্যাংক / ফাইন্যান্স',icon:'fa-building-columns',tone:'cyan'},{id:'communication',name:'যোগাযোগ / সোশ্যাল',icon:'fa-comments',tone:'pink'},{id:'tools',name:'Tools / Utility',icon:'fa-screwdriver-wrench',tone:'orange'},{id:'other',name:'অন্যান্য',icon:'fa-folder-open',tone:'slate'}];
+let categories=[],sites=[],active='all';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function readData(){try{const c=JSON.parse(localStorage.getItem(CATEGORY_KEY)||'null');categories=Array.isArray(c)&&c.length?c:structuredClone(DEFAULT_CATEGORIES)}catch{categories=structuredClone(DEFAULT_CATEGORIES)}
+try{const w=JSON.parse(localStorage.getItem(WEBSITE_KEY)||'null');sites=Array.isArray(w)?w.filter(x=>x&&x.url).map(norm):[{id:'pdf-parser',name:'PDF Parser',url:'https://pdf-parser-eta.vercel.app/',category:'tools',icon:'fa-folder-open',createdAt:'2026-01-01T00:00:00.000Z'}]}catch{sites=[]}
+if(!categories.some(c=>c.id==='other'))categories.push(DEFAULT_CATEGORIES.at(-1));saveData(false)}
+function norm(w){return {id:String(w.id||crypto.randomUUID()),name:String(w.name||'Website'),url:String(w.url||''),category:String(w.category||'other'),icon:String(w.icon||'fa-folder-open'),createdAt:w.createdAt||new Date().toISOString(),updatedAt:w.updatedAt||w.createdAt||new Date().toISOString()}}
+function saveData(render=true){localStorage.setItem(CATEGORY_KEY,JSON.stringify(categories));localStorage.setItem(WEBSITE_KEY,JSON.stringify(sites));if(render)renderAll()}
+function meta(id){return categories.find(c=>c.id===id)||categories.find(c=>c.id==='other')}
+function renderAll(){renderCategories();renderSites();$('total').textContent=sites.length;$('catCount').textContent=categories.length;const m=new Date().toISOString().slice(0,7);$('newCount').textContent=sites.filter(s=>(s.createdAt||'').slice(0,7)===m).length;$('currentCat').textContent=active==='all'?'সবগুলো':meta(active).name}
+function renderCategories(){const categoryCards=categories.map(c=>{const count=sites.filter(s=>s.category===c.id).length;return `<div class="category ${active===c.id?'active':''}" onclick="selectCategory('${esc(c.id)}')"><div class="flex items-center justify-between"><span class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 grid place-items-center"><i class="fa-solid ${esc(c.icon||'fa-folder-open')} text-lg"></i></span><b>${count}</b></div><div class="font-bold text-sm mt-3">${esc(c.name)}</div><div class="flex gap-2 mt-3"><button class="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2" onclick="event.stopPropagation();editCategory('${esc(c.id)}')">এডিট</button><button class="text-xs text-rose-700 bg-rose-50 rounded-lg px-3 py-2" onclick="event.stopPropagation();deleteCategory('${esc(c.id)}')">ডিলিট</button></div></div>`}).join('');$('categories').innerHTML=categoryCards;$('dashboardCategoryCards').innerHTML=categoryCards.replaceAll('event.stopPropagation();editCategory','event.stopPropagation();editCategory').replaceAll('event.stopPropagation();deleteCategory','event.stopPropagation();deleteCategory');$('siteCategory').innerHTML=categories.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');$('filter').innerHTML='<option value="all">সব ক্যাটাগরি</option>'+categories.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');$('filter').value=active}
+function selectCategory(id){active=id;$('filter').value=id;$('listHeading').innerHTML=`<i class="fa-solid fa-folder-open text-teal-600 mr-2"></i>${id==='all'?'সব Website':esc(meta(id).name)}`;renderAll();showSection('websiteSection')}
+function renderSites(){const q=$('search').value.toLowerCase().trim();const shown=sites.filter(s=>(active==='all'||s.category===active)&&(!q||`${s.name} ${s.url}`.toLowerCase().includes(q)));$('sites').innerHTML=shown.length?shown.map(s=>{const c=meta(s.category);return `<article class="site" onclick="openSite('${encodeURIComponent(s.url)}')"><div class="site-icon"><i class="fa-solid ${esc(s.icon||'fa-folder-open')}"></i></div><div class="w-full text-center min-w-0"><div class="font-extrabold text-sm truncate">${esc(s.name)}</div><span class="text-[10px] bg-teal-50 text-teal-700 px-2 py-1 rounded-full">${esc(c.name)}</span><div class="text-[10px] muted truncate mt-2">${esc(s.url)}</div></div><div class="flex gap-2 mt-1" onclick="event.stopPropagation()"><button class="btn bg-teal-50 text-teal-700 !p-2" title="Open" onclick="openSite('${encodeURIComponent(s.url)}')"><i class="fa-solid fa-up-right-from-square"></i></button><button class="btn bg-amber-50 text-amber-700 !p-2" title="Edit" onclick="editSite('${esc(s.id)}')"><i class="fa-solid fa-pen"></i></button><button class="btn bg-rose-50 text-rose-700 !p-2" title="Delete" onclick="deleteSite('${esc(s.id)}')"><i class="fa-solid fa-trash"></i></button></div></article>`}).join(''):'<div class="col-span-full p-10 text-center muted">কোনো Website পাওয়া যায়নি।</div>'}
+function openSite(encoded){const u=decodeURIComponent(encoded);try{const x=new URL(u);if(!['http:','https:'].includes(x.protocol))throw 0;window.open(x.href,'_blank','noopener,noreferrer')}catch{alert('সঠিক Website URL পাওয়া যায়নি।')}}
+function saveSite(e){e.preventDefault();const id=$('siteId').value,name=$('siteName').value.trim(),url=$('siteUrl').value.trim(),category=$('siteCategory').value,icon=$('siteIcon').value;try{if(!['http:','https:'].includes(new URL(url).protocol))throw 0}catch{alert('সঠিক http:// অথবা https:// URL দিন।');return}if(sites.some(s=>s.id!==id&&s.url.toLowerCase()===url.toLowerCase())){alert('এই URL ইতিমধ্যে যোগ করা হয়েছে।');return}const now=new Date().toISOString();if(id){const i=sites.findIndex(s=>s.id===id);sites[i]={...sites[i],name,url,category,icon,updatedAt:now}}else sites.push({id:crypto.randomUUID(),name,url,category,icon,createdAt:now,updatedAt:now});resetSiteForm();saveData()}
+function editSite(id){const s=sites.find(x=>x.id===id);if(!s)return;$('siteId').value=s.id;$('siteName').value=s.name;$('siteUrl').value=s.url;$('siteCategory').value=s.category;$('siteIcon').value=s.icon||'fa-folder-open';$('saveSiteBtn').innerHTML='<i class="fa-solid fa-check"></i> আপডেট';$('siteName').focus();window.scrollTo({top:$('siteForm').getBoundingClientRect().top+scrollY-100,behavior:'smooth'})}
+function deleteSite(id){const s=sites.find(x=>x.id===id);if(!s||!confirm(`“${s.name}” Website মুছে ফেলবেন?`))return;sites=sites.filter(x=>x.id!==id);saveData()}
+function resetSiteForm(){$('siteForm').reset();$('siteId').value='';$('siteCategory').value='other';$('siteIcon').value='fa-folder-open';$('saveSiteBtn').innerHTML='<i class="fa-solid fa-plus"></i> এড করুন'}
+function showCategoryForm(){$('catForm').classList.remove('hidden');$('catName').focus()}
+function resetCategoryForm(){$('catForm').classList.add('hidden');$('catEditId').value='';$('catName').value=''}
+function editCategory(id){const c=meta(id);if(!c)return;$('catEditId').value=c.id;$('catName').value=c.name;showCategoryForm()}
+function saveCategory(e){e.preventDefault();const id=$('catEditId').value,name=$('catName').value.trim();if(categories.some(c=>c.name.toLowerCase()===name.toLowerCase()&&c.id!==id)){alert('এই নামে ক্যাটাগরি আছে।');return}if(id){const c=categories.find(c=>c.id===id);if(c)c.name=name}else{let slug=name.toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]+/g,'-').replace(/^-|-$/g,'')||'category';let base=slug,n=2;while(categories.some(c=>c.id===slug))slug=base+'-'+n++;categories.push({id:slug,name,icon:'fa-folder-open',tone:'slate'})}resetCategoryForm();saveData()}
+function deleteCategory(id){if(id==='other'){alert('ডিফল্ট “অন্যান্য” ক্যাটাগরি মুছতে পারবেন না।');return}const c=meta(id),n=sites.filter(s=>s.category===id).length;if(!confirm(`${c.name} মুছবেন? ${n}টি Website “অন্যান্য” ক্যাটাগরিতে যাবে।`))return;sites=sites.map(s=>s.category===id?{...s,category:'other',updatedAt:new Date().toISOString()}:s);categories=categories.filter(c=>c.id!==id);if(active===id)active='all';saveData()}
+async function sha256(text){if(!crypto.subtle)return 'not-available';const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function downloadBackup(){const payload={format:'AHA-ISP-WEBSITE-BACKUP',version:1,createdAt:new Date().toISOString(),websites:sites,categories};const canonical=JSON.stringify(payload);payload.sha256=await sha256(canonical);const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`AHA_ISP_Website_Backup_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);$('backupStatus').textContent=`Backup তৈরি হয়েছে • ${sites.length} Website • SHA-256: ${payload.sha256}`}
+async function restoreBackup(){const f=$('restoreFile').files[0];if(!f){alert('প্রথমে Backup JSON ফাইল নির্বাচন করুন।');return}try{const data=JSON.parse(await f.text());if(data.format!=='AHA-ISP-WEBSITE-BACKUP'||!Array.isArray(data.websites)||!Array.isArray(data.categories))throw Error('ফাইলের ফরম্যাট সঠিক নয়');if(data.sha256){const check={...data};delete check.sha256;const actual=await sha256(JSON.stringify(check));if(actual!==data.sha256)throw Error('SHA-256 যাচাই ব্যর্থ। ফাইল পরিবর্তিত বা ক্ষতিগ্রস্ত।')}if(!confirm('বর্তমান Website ও Category ডাটার Safety Snapshot নিয়ে নির্বাচিত Backup Restore করবেন?'))return;const snap={format:'AHA-ISP-WEBSITE-SAFETY-SNAPSHOT',createdAt:new Date().toISOString(),websites:sites,categories};const blob=new Blob([JSON.stringify(snap,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`AHA_ISP_Website_Safety_Snapshot_${Date.now()}.json`;a.click();URL.revokeObjectURL(a.href);sites=data.websites.map(norm);categories=data.categories;if(!categories.some(c=>c.id==='other'))categories.push(DEFAULT_CATEGORIES.at(-1));active='all';saveData();$('backupStatus').textContent='Restore সফল হয়েছে • Safety Snapshot ডাউনলোড করা হয়েছে';alert('Website Backup সফলভাবে Restore হয়েছে।')}catch(e){alert('Restore করা যায়নি: '+e.message)}}
+
+
+const SCREEN_MODE_KEY='aha_standalone_screen_mode_v1';
+function setScreenMode(mode){
+ if(mode!=='mobile'&&mode!=='desktop')mode='mobile';
+ const meta=document.querySelector('meta[name="viewport"]');
+ if(meta){
+  meta.setAttribute('content',mode==='desktop'
+   ?'width=1024, initial-scale=0.35, minimum-scale=0.25, maximum-scale=2, user-scalable=yes'
+   :'width=device-width, initial-scale=1.0, viewport-fit=cover');
+ }
+ document.body.classList.toggle('desktop-view-mode',mode==='desktop');
+ ['topMobileMode','sidebarMobileMode'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('active',mode==='mobile')});
+ ['topDesktopMode','sidebarDesktopMode'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('active',mode==='desktop')});
+ try{localStorage.setItem(SCREEN_MODE_KEY,mode)}catch(e){}
+ closeSidebar();
+}
+function applySavedScreenMode(){
+ let mode='mobile';
+ try{mode=localStorage.getItem(SCREEN_MODE_KEY)||'mobile'}catch(e){}
+ setScreenMode(mode);
+}
+
+
+const ACTIVE_PANEL_KEY='aha_standalone_active_panel_v1';
+const APP_HISTORY_FLAG='ahaIspPanel';
+let currentAppPanel='dashboard';
+function paintSection(sectionId){
+ const allowed=['dashboard','categorySection','websiteSection','backupSection'];
+ if(!allowed.includes(sectionId))sectionId='dashboard';
+ currentAppPanel=sectionId;
+ allowed.forEach(id=>{const panel=document.getElementById(id);if(panel)panel.classList.toggle('active-panel',id===sectionId)});
+ document.querySelectorAll('.sidebar-nav a').forEach(a=>{
+  const target=(a.getAttribute('href')||'').replace('#','');
+  a.classList.toggle('active',target===sectionId);
+  if(target===sectionId)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
+ });
+ try{localStorage.setItem(ACTIVE_PANEL_KEY,sectionId)}catch(e){}
+ closeSidebar();window.scrollTo({top:0,behavior:'smooth'});
+}
+function showSection(sectionId){
+ const allowed=['dashboard','categorySection','websiteSection','backupSection'];
+ if(!allowed.includes(sectionId))sectionId='dashboard';
+ if(sectionId!==currentAppPanel){try{history.pushState({[APP_HISTORY_FLAG]:true,panel:sectionId},'','#'+sectionId)}catch(e){}}
+ paintSection(sectionId);
+}
+function appGoBack(){
+ if($('appSidebar')?.classList.contains('open')){closeSidebar();return;}
+ if(currentAppPanel!=='dashboard'&&history.state&&history.state[APP_HISTORY_FLAG]){history.back();return;}
+ if(currentAppPanel!=='dashboard'){paintSection('dashboard');return;}
+ try{history.pushState({[APP_HISTORY_FLAG]:true,panel:'dashboard'},'','#dashboard')}catch(e){}
+}
+window.addEventListener('popstate',function(event){
+ if($('appSidebar')?.classList.contains('open')){closeSidebar();return;}
+ const panel=event.state&&event.state[APP_HISTORY_FLAG]?event.state.panel:'dashboard';
+ paintSection(panel);
+ if(!event.state||!event.state[APP_HISTORY_FLAG]){try{history.pushState({[APP_HISTORY_FLAG]:true,panel:currentAppPanel},'','#'+currentAppPanel)}catch(e){}}
+});
+function applySavedPanel(){
+ let panel='dashboard';try{panel=localStorage.getItem(ACTIVE_PANEL_KEY)||panel}catch(e){}
+ paintSection(panel);
+ try{history.replaceState({[APP_HISTORY_FLAG]:true,panel:currentAppPanel},'','#'+currentAppPanel)}catch(e){}
+}
+
+const WEBSITE_VIEW_KEY='aha_standalone_website_view_v1';
+const THEME_KEY='aha_standalone_theme_v1';
+function setWebsiteView(mode){
+ const allowed=['extra-large-icons','large-icons','medium-icons','small-icons','list','details','tiles','content'];
+ if(!allowed.includes(mode))mode='extra-large-icons';
+ const box=$('sites');box.className='website-grid view-'+mode;
+ $('websiteViewMode').value=mode;
+ try{localStorage.setItem(WEBSITE_VIEW_KEY,mode)}catch(e){}
+}
+function toggleTheme(){
+ document.body.classList.toggle('dark');
+ const dark=document.body.classList.contains('dark');
+ $('themeIcon').className='fa-solid '+(dark?'fa-sun':'fa-moon');
+ $('themeToggle').title=dark?'Light mode':'Dark mode';
+ try{localStorage.setItem(THEME_KEY,dark?'dark':'light')}catch(e){}
+}
+function applySavedPreferences(){
+ let mode='extra-large-icons',theme='light';
+ try{mode=localStorage.getItem(WEBSITE_VIEW_KEY)||mode;theme=localStorage.getItem(THEME_KEY)||theme}catch(e){}
+ setWebsiteView(mode);
+ if(theme==='dark'&&!document.body.classList.contains('dark')){
+  document.body.classList.add('dark');$('themeIcon').className='fa-solid fa-sun';
+ }
+}
+function toggleSidebar(){$('appSidebar').classList.toggle('open');$('sidebarScrim').classList.toggle('show')}
+function closeSidebar(){$('appSidebar').classList.remove('open');$('sidebarScrim').classList.remove('show')}
+
+readData();renderAll();applySavedPreferences();applySavedScreenMode();applySavedPanel();
+</script></body></html>
