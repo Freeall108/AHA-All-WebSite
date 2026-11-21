@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="app-version" content="1.4"><title>AHA ISP — Website Management v1.4</title>
+<meta name="app-version" content="1.7"><title>AHA ISP — Website Management v1.8</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
@@ -25,7 +25,7 @@
 .sidebar-nav{display:grid;gap:7px;margin-top:22px}.sidebar-nav a{display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:12px;color:#475569;font-size:14px;font-weight:700;text-decoration:none}
 .sidebar-nav a:hover,.sidebar-nav a:focus{background:#e6fffb;color:#0f766e}.sidebar-nav i{width:20px;text-align:center;color:#0d9488}
 .sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid #e2e8f0}
-.app-header,.app-main{margin-left:248px!important}.mobile-menu{display:none!important}.sidebar-scrim{display:none}
+.app-header,.app-main{margin-left:248px!important}.mobile-menu{display:inline-flex!important}.sidebar-scrim{display:none}
 .view-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #dbeafe;background:#f8fbff;border-radius:13px;padding:9px 12px}
 .view-toolbar label{font-size:12px;font-weight:800;color:#475569;display:flex;gap:8px;align-items:center}
 .view-select{max-width:230px;padding:8px 10px}
@@ -91,6 +91,19 @@ body.desktop-view-mode .website-grid.view-large-icons{grid-template-columns:repe
 body.desktop-view-mode .website-grid.view-medium-icons{grid-template-columns:repeat(6,minmax(0,1fr))}
 body.desktop-view-mode .website-grid.view-small-icons{grid-template-columns:repeat(8,minmax(0,1fr))}
 body.desktop-view-mode .sidebar-scrim{display:none!important}
+/* Universal sidebar show/hide: Mobile Mode and Desktop Mode, any screen width */
+body.sidebar-hidden .app-sidebar{transform:translateX(-105%)}
+body.sidebar-hidden .app-header,
+body.sidebar-hidden .app-main{margin-left:0!important}
+body.sidebar-hidden .app-main{width:100%;max-width:none!important}
+body.sidebar-hidden .sidebar-scrim{display:none!important}
+/* Sidebar show/hide control also works when Desktop Mode is selected on a phone */
+body.desktop-view-mode.sidebar-hidden .app-sidebar{transform:translateX(-105%)}
+body.desktop-view-mode.sidebar-hidden .app-header,
+body.desktop-view-mode.sidebar-hidden .app-main{margin-left:0!important}
+body.desktop-view-mode.sidebar-hidden .app-main{width:100%;max-width:none!important}
+body.desktop-view-mode.sidebar-hidden .app-sidebar.open{transform:translateX(0)}
+
 body.dark .sidebar-mode-controls{background:#142238;border-color:#29384d}
 body.dark .mode-choice,body.dark .screen-mode-btn{background:#111c2e;border-color:#29384d;color:#cbd5e1}
 body.dark .mode-choice.active,body.dark .screen-mode-btn.active{background:#123b3a;border-color:#14b8a6;color:#5eead4}
@@ -131,12 +144,12 @@ body.dark .sidebar-nav a.active i{color:#5eead4}
  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
   <div class="flex items-center gap-2 sm:gap-3">
    <button id="topBackButton" class="top-back-btn" type="button" onclick="appGoBack()" aria-label="আগের পেজে ফিরুন" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
-   <button class="mobile-menu btn bg-slate-100 text-slate-700" onclick="toggleSidebar()" aria-label="মেনু খুলুন"><i class="fa-solid fa-bars"></i></button><div class="w-11 h-11 rounded-2xl bg-teal-100 text-teal-700 grid place-items-center text-xl"><i class="fa-solid fa-globe"></i></div><div><h1 class="font-black text-lg sm:text-xl">AHA ISP — Website Management</h1><p class="text-xs muted">ওয়েবসাইট, ক্যাটাগরি ও ব্যাকআপ ম্যানেজমেন্ট</p></div></div>
+   <button class="mobile-menu btn bg-slate-100 text-slate-700" onclick="toggleSidebar()" aria-label="সাইডবার দেখান বা লুকান" title="সাইডবার Show / Hide"><i class="fa-solid fa-ellipsis-vertical"></i></button><div class="w-11 h-11 rounded-2xl bg-teal-100 text-teal-700 grid place-items-center text-xl"><i class="fa-solid fa-globe"></i></div><div><h1 class="font-black text-lg sm:text-xl">AHA ISP — Website Management</h1><p class="text-xs muted">ওয়েবসাইট, ক্যাটাগরি ও ব্যাকআপ ম্যানেজমেন্ট</p></div></div>
   <div class="flex items-center gap-2 flex-wrap justify-end">
    <button id="topMobileMode" class="screen-mode-btn" type="button" onclick="setScreenMode('mobile')" title="Mobile Mode — Portrait"><i class="fa-solid fa-mobile-screen-button"></i><span>Mobile</span><small>Portrait</small></button>
    <button id="topDesktopMode" class="screen-mode-btn" type="button" onclick="setScreenMode('desktop')" title="Desktop Mode — Landscape"><i class="fa-solid fa-desktop"></i><span>Desktop</span><small>Landscape</small></button>
    <button id="themeToggle" class="btn bg-slate-100 text-slate-700" onclick="toggleTheme()" title="Dark / Light"><i id="themeIcon" class="fa-solid fa-moon"></i><span class="hidden sm:inline">ডার্ক / লাইট</span></button>
-   <span class="text-xs font-bold px-3 py-2 rounded-full bg-teal-50 text-teal-700">v1.1</span>
+   <span class="text-xs font-bold px-3 py-2 rounded-full bg-teal-50 text-teal-700">v1.8</span>
   </div>
  </div>
 </header>
@@ -226,10 +239,11 @@ function setScreenMode(mode){
    :'width=device-width, initial-scale=1.0, viewport-fit=cover');
  }
  document.body.classList.toggle('desktop-view-mode',mode==='desktop');
+ document.body.classList.remove('sidebar-hidden');
  ['topMobileMode','sidebarMobileMode'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('active',mode==='mobile')});
  ['topDesktopMode','sidebarDesktopMode'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('active',mode==='desktop')});
  try{localStorage.setItem(SCREEN_MODE_KEY,mode)}catch(e){}
- closeSidebar();
+ $('appSidebar').classList.remove('open');$('sidebarScrim').classList.remove('show');
 }
 function applySavedScreenMode(){
  let mode='mobile';
@@ -302,8 +316,17 @@ function applySavedPreferences(){
   document.body.classList.add('dark');$('themeIcon').className='fa-solid fa-sun';
  }
 }
-function toggleSidebar(){$('appSidebar').classList.toggle('open');$('sidebarScrim').classList.toggle('show')}
-function closeSidebar(){$('appSidebar').classList.remove('open');$('sidebarScrim').classList.remove('show')}
+function toggleSidebar(){
+ const hidden=document.body.classList.toggle('sidebar-hidden');
+ const mobile=window.matchMedia('(max-width: 767px)').matches;
+ $('appSidebar').classList.toggle('open',!hidden && mobile);
+ $('sidebarScrim').classList.toggle('show',!hidden && mobile);
+}
+function closeSidebar(){
+ $('appSidebar').classList.remove('open');
+ $('sidebarScrim').classList.remove('show');
+ document.body.classList.add('sidebar-hidden');
+}
 
 readData();renderAll();applySavedPreferences();applySavedScreenMode();applySavedPanel();
 </script></body></html>
